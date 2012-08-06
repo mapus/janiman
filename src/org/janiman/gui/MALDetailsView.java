@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import org.janiman.event.bus.EventBus;
 import org.janiman.event.bus.EventSubscriber;
 import org.janiman.parser.myanimelist.MALAnime;
-
+// Penispenis123
 public class MALDetailsView extends JPanel implements EventSubscriber {
 	
 	JLabel labelTitle;
