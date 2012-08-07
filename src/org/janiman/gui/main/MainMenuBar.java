@@ -10,7 +10,7 @@ import javax.swing.JMenuItem;
 import javax.swing.SwingWorker;
 
 import org.janiman.gui.dialog.open.AddAnimeDialog;
-import org.janiman.gui.dialog.usersettings.MALUserSettingsDialog;
+import org.janiman.gui.dialog.usersettings.AnidbUserSettingsDialog;
 
 public class MainMenuBar extends JMenuBar {
 	
@@ -63,7 +63,7 @@ public class MainMenuBar extends JMenuBar {
 		public void actionPerformed(ActionEvent e) {
 			if(e.getActionCommand().equals("settings"))
 			{
-				MALUserSettingsDialog dialog = new MALUserSettingsDialog(parent);
+				AnidbUserSettingsDialog dialog = new AnidbUserSettingsDialog(parent);
 				dialog.setVisible(true);
 				dialog.pack();
 			}
