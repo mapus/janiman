@@ -137,6 +137,17 @@ public class AnidbApi {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			finally{
+				try {
+					conn.close();
+				} catch (UdpConnectionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (AniDbException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 
 	}
@@ -158,6 +169,18 @@ public class AnidbApi {
 		} catch (AniDbException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		finally{
+			try {
+				conn.close();
+				
+			} catch (UdpConnectionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (AniDbException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return userId;
 	}
