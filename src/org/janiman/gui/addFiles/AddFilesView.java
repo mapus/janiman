@@ -8,11 +8,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
+import org.janiman.event.bus.EventBus;
+import org.janiman.event.bus.EventSubscriber;
 import org.janiman.parser.anidb.AnidbApi;
 
 import net.iharder.dnd.FileDrop;
@@ -28,8 +31,11 @@ public class AddFilesView extends JPanel {
 	File[] files;
 	JButton buttonStart;
 	JProgressBar progressBar;
+	EventBus bus;
+	JLabel labelBus;
 	
 	
+	//TODO - Improve gui and adding System
 	
 	JList list;
 	
@@ -44,7 +50,10 @@ public class AddFilesView extends JPanel {
 	{
 		controller = new Controller();
 		dropper = new FileDrop(this,controller);
+		bus = EventBus.getInstance();
+		bus.subscribe(controller,"anidbapi_add_message");
 		
+		labelBus = new JLabel();
 		list=new JList();
 		buttonStart = new JButton("Start");
 		buttonStart.setActionCommand("start");
@@ -59,10 +68,11 @@ public class AddFilesView extends JPanel {
 		super.add(list,BorderLayout.WEST);
 		super.add(buttonStart,BorderLayout.EAST);
 		super.add(progressBar,BorderLayout.SOUTH);
+		super.add(labelBus,BorderLayout.NORTH);
 	}
 	
 	
-	class Controller implements FileDropListener, Listener, ActionListener
+	class Controller implements FileDropListener, Listener, ActionListener, EventSubscriber
 	{
 
 		@Override
@@ -96,7 +106,15 @@ public class AddFilesView extends JPanel {
 					
 				};
 				worker.execute();
+				bus.publishEvent("update_side_list", null);
 			}
+			
+		}
+
+		@Override
+		public void eventPerformed(String key, Object o) {
+			String message = (String) o;
+			labelBus.setText(message);
 			
 		}
 		

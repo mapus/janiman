@@ -301,6 +301,22 @@ public class DBMapper implements IDBMapper {
 			e.printStackTrace();
 		}
 	}
+	public boolean isAlreadyInDatabase(long anidbId)
+	{
+		boolean returnValue = true;
+		try {
+			ResultSet set = stat.executeQuery("SELECT * FROM adbAnime WHERE animeId="+anidbId+";");
+			if(set.wasNull())
+			{
+				returnValue = false;
+			}
+				
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return returnValue;
+	}
 	public void addEpisode(MALEpisode epi, java.io.File episode)
 	{
 		try {

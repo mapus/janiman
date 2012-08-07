@@ -90,13 +90,21 @@ public class AnidbApi {
 		}
 		System.out.println("logged - in");
 		for (java.io.File file : files) {
-			System.out.println("Hashing File" + file.getAbsolutePath());
+			bus.publishEvent("anidbapi_add_message",new String("Started Hashing File"+file.getAbsolutePath()));
 			String ed2kHash = UtilEd2k.generateEd2kHash(file);
+			bus.publishEvent("anidbapi_add_message",new String("Hashing success : " + ed2kHash));
+			bus.publishEvent("anidbapi_add_message",new String("Revieving File infos"));
 			try {
+				
+				//Revieve File data;
 				List<File> erg = conn.getFiles(file.length(), ed2kHash,
 						fileMask, animeMask);
 				System.out.println("Adding File" + file.getAbsolutePath());
 				File toInsert = erg.get(0);
+				
+				
+				//Adding file+episodedata to database;
+				bus.publishEvent("anidbapi_add_message",new String("Adding File+Episode Infos to Database"));		
 				mapper.addADBFile(toInsert);
 				mapper.addADBEpisode(toInsert.getEpisode());
 				mapper.addFileLoc(file.getAbsolutePath(), toInsert.getEpisode()
@@ -105,11 +113,23 @@ public class AnidbApi {
 				bus.publishEvent("hashEvent_success", new String(toInsert
 						.getEpisode().getAnime().getRomajiName()));
 				waitTimeout();
-				Anime a = conn.getAnime(toInsert.getEpisode().getAnime()
-						.getAnimeId(), AnimeMask.ALL);
-				mapper.addADBAnime(a);
-				mapper.addADBCategory(a);
-				waitTimeout();
+				
+				
+				
+				if(mapper.isAlreadyInDatabase(toInsert.getEpisode().getAnime().getAnimeId()))
+				{
+					bus.publishEvent("anidbapi_add_message",new String("Getting Anime Infos"));
+					Anime a = conn.getAnime(toInsert.getEpisode().getAnime()
+							.getAnimeId(), AnimeMask.ALL);
+					bus.publishEvent("anidbapi_add_message",new String("Adding Anime Infos to Database"));
+					mapper.addADBAnime(a);
+					mapper.addADBCategory(a);
+					bus.publishEvent("anidbapi_add_message",new String("Writing Anime Infos to Database - Success"));
+					waitTimeout();
+					//TODO - add hashed files to mylist;
+				}
+
+
 			} catch (UdpConnectionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -127,10 +147,10 @@ public class AnidbApi {
 		try {		
 		
 			conn = factory.connect(1025);
-			conn.authenticate(user.getUsername(), user.getPassword());
+			conn.authenticate(name,password);
 			if(conn.isLoggedIn())
 			{
-				userId=conn.getUserId(user.getUsername());
+				userId=conn.getUserId(name);
 			}
 		} catch (UdpConnectionException e) {
 			// TODO Auto-generated catch block
