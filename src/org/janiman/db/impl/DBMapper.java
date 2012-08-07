@@ -404,8 +404,7 @@ public class DBMapper implements IDBMapper {
 			prep.executeBatch();
 			conn.setAutoCommit(true);
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			System.err.println(e1.getMessage());
 		}
 	}
 	/**
@@ -569,6 +568,103 @@ public class DBMapper implements IDBMapper {
 			System.out.println(e.getMessage());
 		}
 	}
+	public ArrayList<Anime> fetchOwnADBAnime()
+	{		/**
+		 * CRATE TABLE IF NOT EXISTS adbAnime(" +
+		"animeId LONG PRIMARY KEY," +
+		"year STRING," +
+		"type STRING," +
+		"romanjiName STRING," +
+		"kanjiName STRING," +
+		"englishName STRING," +
+		"episodes LONG," +
+		"normalEpisodeCount LONG," +
+		"airDate LONG," +
+		"url STRING," +
+		"picname STRING," +
+		"rating LONG," +
+		"voteCount LONG," +
+		"tempRating LONG," +
+		"tempVoteCount LONG," +
+		"averageReviewRating LONG," +
+		"reviewCount LONG," +
+		"is18PlusRestricted BOOLEAN," +
+		"animePlanetId LONG," +
+		"annId LONG," +
+		"allCinemaId LONG," +
+		"animeNfoId STRING," +
+		"dataRecordUpdate LONG," +
+		"specialCount LONG," +
+		"creditsCount LONG," +
+		"otherCount LONG," +
+		"trailerCount LONG," +
+		"parodyCount);");
+*/
+		ArrayList<Anime> result= new ArrayList<Anime>();
+		ResultSet rs;
+		ResultSet catrs;
+		try {
+			rs=stat.executeQuery("SELECT DISTINCT * from adbAnime WHERE animeId IN(SELECT adbAnimeId from fileloc);");
+			//TODO querry
+			while(rs.next())
+			{
+				Anime anime = new Anime();
+				anime.setAnimeId(rs.getLong("animeId"));
+				anime.setYear(rs.getString("year"));
+				anime.setType(rs.getString("type"));
+				anime.setRomajiName(rs.getString("romanjiName"));
+				anime.setKanjiName(rs.getString("kanjiName"));
+				anime.setEnglishName(rs.getString("englishName"));
+				anime.setNormalEpisodeCount(rs.getLong("normalEpisodeCount"));
+				anime.setAirDate(rs.getLong("airDate"));
+				anime.setUrl(rs.getString("url"));
+				anime.setPicname(rs.getString("picname"));
+				anime.setRating(rs.getLong("rating"));
+				anime.setVoteCount(rs.getLong("voteCount"));
+				anime.setTempRating(rs.getLong("tempRating"));
+				anime.setTempVoteCount(rs.getLong("tempVoteCount"));
+				anime.setAverageReviewRating(rs.getLong("averageReviewRating"));
+				anime.setReviewCount(rs.getLong("reviewCount"));
+				anime.set18PlusRestricted(rs.getBoolean("is18PlusRestricted"));
+				anime.setAnimePlanetId(rs.getLong("animePlanetId"));
+				anime.setAnnId(rs.getLong("annId"));
+				anime.setAllCinemaId(rs.getLong("allCinemaId"));
+				anime.setAnimeNfoId(rs.getString("animeNfoId"));
+				anime.setDateRecordUpdated(rs.getLong("dataRecordUpdate"));
+				anime.setSpecialsCount(rs.getLong("specialCount"));
+				anime.setCreditsCount(rs.getLong("creditsCount"));
+				anime.setTrailerCount(rs.getLong("trailercount"));
+				anime.setParodyCount(rs.getLong("parodyCount"));
+	
+				result.add(anime);
+				
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for(Anime a : result)
+		{
+			try {
+				catrs = stat.executeQuery("SELECT category from category where animeId="+a.getAnimeId()+";");
+				List<String> catlist = new ArrayList<String>();
+				while(catrs.next())
+				{
+					catlist.add(catrs.getString("category"));
+				}
+				a.setCategoryList(catlist);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+
+		}
+		
+		return result;
+	}
+	
 	public ArrayList<MALAnime> fetchOwnAnime()
 	{
 		ArrayList<MALAnime> result = new ArrayList<MALAnime>();

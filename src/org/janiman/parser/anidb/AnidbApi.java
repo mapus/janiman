@@ -1,5 +1,6 @@
 package org.janiman.parser.anidb;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.janiman.db.impl.DBMapper;
@@ -49,10 +50,12 @@ public class AnidbApi {
 			conn = factory.connect(1025);
 			conn.authenticate(user.getUsername(),user.getPassword());
 			System.out.println("logged - in");
-			List<File> erg =  conn.getFiles(file.length(),UtilEd2k.generateEd2kHash(file),fileMask,animeMask);
+			String ed2kHash=UtilEd2k.generateEd2kHash(file);
+			List<File> erg =  conn.getFiles(file.length(),ed2kHash,fileMask,animeMask);
 			File toInsert = erg.get(0);
 			mapper.addADBFile(toInsert);
 			mapper.addADBEpisode(toInsert.getEpisode());
+			mapper.addFileLoc(file.getAbsolutePath(),toInsert.getEpisode().getAnime().getAnimeId(), ed2kHash, toInsert.getEpisode().getEpisodeId(), toInsert.getFileId());
 			bus.publishEvent("hashEvent_success",new String(toInsert.getEpisode().getAnime().getRomajiName()));
 			
 			waitTimeout();
@@ -68,6 +71,61 @@ public class AnidbApi {
 			System.out.println(e.getReturnCode());
 			e.printStackTrace();
 		}
+	}
+	
+	public void hashAndAddFiles(ArrayList<java.io.File> files)
+	{
+		waitTimeout();
+		try {
+			conn = factory.connect(1025);
+			conn.authenticate(user.getUsername(),user.getPassword());
+			//Verbindungsaufbau
+		} catch (UdpConnectionException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (AniDbException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("logged - in");
+		for(java.io.File file : files)
+		{
+			System.out.println("Hashing File"+file.getAbsolutePath());
+			String ed2kHash=UtilEd2k.generateEd2kHash(file);
+			try {
+				List<File> erg =  conn.getFiles(file.length(),ed2kHash,fileMask,animeMask);
+				System.out.println("Adding File"+file.getAbsolutePath());
+				File toInsert = erg.get(0);
+				mapper.addADBFile(toInsert);
+				mapper.addADBEpisode(toInsert.getEpisode());
+				mapper.addFileLoc(file.getAbsolutePath(),toInsert.getEpisode().getAnime().getAnimeId(), ed2kHash, toInsert.getEpisode().getEpisodeId(), toInsert.getFileId());
+				bus.publishEvent("hashEvent_success",new String(toInsert.getEpisode().getAnime().getRomajiName()));
+	     	  waitTimeout();
+				Anime a=conn.getAnime(toInsert.getEpisode().getAnime().getAnimeId(),AnimeMask.ALL);
+	     	   mapper.addADBAnime(a);
+	     	   mapper.addADBCategory(a);
+	     	   waitTimeout();
+			} catch (UdpConnectionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (AniDbException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+		
+		
+	
+			
+			
+			
+			
+			
+
+
+		
 	}
 	
 	

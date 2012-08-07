@@ -10,6 +10,8 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.anidb.Anime;
+
 import org.janiman.db.impl.DBMapper;
 import org.janiman.event.bus.EventBus;
 import org.janiman.event.bus.EventSubscriber;
@@ -24,7 +26,7 @@ public class ListView extends JPanel implements EventSubscriber {
 	private static final long serialVersionUID = 1L;
 	JList list;
 	AnimeListModel model;
-	ArrayList<MALAnime>data;
+	ArrayList<Anime>data;
 	EventBus bus = EventBus.getInstance();
 	SwingWorker worker;
 	ListSelectionModel selectionModel;
@@ -49,7 +51,7 @@ public class ListView extends JPanel implements EventSubscriber {
 
 			@Override
 			protected Object doInBackground() throws Exception {
-				data=DBMapper.getInstance().fetchOwnAnime();
+				data=DBMapper.getInstance().fetchOwnADBAnime();
 				model=new AnimeListModel(data);
 				list.setModel(model);
 
@@ -85,7 +87,7 @@ public class ListView extends JPanel implements EventSubscriber {
 			{
 				System.out.println("lol-klick");
 				System.out.println(e.getFirstIndex());
-				MALAnime selected=data.get(list.getSelectedIndex());
+				Anime selected=data.get(list.getSelectedIndex());
 				bus.publishEvent("site_list_changed",selected);
 			}
 

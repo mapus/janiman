@@ -1,5 +1,6 @@
 package org.janiman.db.impl.et;
 
+import net.anidb.Episode;
 import net.anidb.File;
 
 public class JAMFile extends File {
@@ -16,7 +17,7 @@ public class JAMFile extends File {
 	
 	public JAMFile()
 	{
-		super();
+
 	}
 	
 	

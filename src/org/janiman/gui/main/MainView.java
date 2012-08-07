@@ -11,6 +11,7 @@ import javax.swing.JTabbedPane;
 
 import org.janiman.db.impl.DBMapper;
 import org.janiman.gui.MALDetailsView;
+import org.janiman.gui.addFiles.AddFilesView;
 import org.janiman.gui.list.ListView;
 
 
@@ -61,7 +62,7 @@ public class MainView extends JFrame {
 	}
 	private void setUpTab2()
 	{
-		MALDetailsView dv = new MALDetailsView();
+		AddFilesView dv = new AddFilesView();
 		tabPane.addTab("Pingas",dv);
 	}
 	
