@@ -36,9 +36,6 @@ public class DBMapper implements IDBMapper {
 			conn=DriverManager.getConnection("jdbc:sqlite:test.db");
 			stat = conn.createStatement();
 
-			stat.execute("create table if not exists files(filename, ed2kHash);");
-			stat.execute("create table if not exists seriesPath(seriesId,seriesnName, folderPath);");
-
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

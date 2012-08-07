@@ -11,6 +11,8 @@ import org.janiman.gui.dialog.usersettings.AnidbUserFactory;
 
 import net.anidb.Anime;
 import net.anidb.File;
+import net.anidb.http.HttpConnection;
+import net.anidb.http.HttpConnectionFactory;
 import net.anidb.udp.AniDbException;
 import net.anidb.udp.UdpConnection;
 import net.anidb.udp.UdpConnectionException;
@@ -127,6 +129,8 @@ public class AnidbApi {
 					bus.publishEvent("anidbapi_add_message",new String("Writing Anime Infos to Database - Success"));
 					waitTimeout();
 					//TODO - add hashed files to mylist;
+					
+					
 				}
 
 
