@@ -116,7 +116,7 @@ public class AnidbApi {
 				
 				
 				
-				if(mapper.isAlreadyInDatabase(toInsert.getEpisode().getAnime().getAnimeId()))
+				if(!mapper.isAlreadyInDatabase(toInsert.getEpisode().getAnime().getAnimeId()))
 				{
 					bus.publishEvent("anidbapi_add_message",new String("Getting Anime Infos"));
 					Anime a = conn.getAnime(toInsert.getEpisode().getAnime()

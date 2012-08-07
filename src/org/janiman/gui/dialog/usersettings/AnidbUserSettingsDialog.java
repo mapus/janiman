@@ -32,6 +32,7 @@ public class AnidbUserSettingsDialog extends JDialog {
 		super(owner,true);
 		initComponents();
 		setUp();
+		super.pack();
 	}
 
 	private void initComponents() {

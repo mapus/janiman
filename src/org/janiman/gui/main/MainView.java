@@ -12,6 +12,7 @@ import javax.swing.JTabbedPane;
 import org.janiman.db.impl.DBMapper;
 import org.janiman.gui.MALDetailsView;
 import org.janiman.gui.addFiles.AddFilesView;
+import org.janiman.gui.animedetails.AnimeDetailsView;
 import org.janiman.gui.list.ListView;
 
 
@@ -54,6 +55,7 @@ public class MainView extends JFrame {
 		JPanel panelMain = new JPanel();
 		panelMain.setLayout(new BorderLayout());
 		panelMain.add(listview,BorderLayout.WEST);
+		panelMain.add(new AnimeDetailsView(),BorderLayout.CENTER);
 		
 		JPanel panelRight = new JPanel();
 		panelMain.add(panelRight,BorderLayout.EAST);
