@@ -24,6 +24,7 @@ public class AnimeDetailsView extends JPanel {
 	Anime currentAnime;
 	EventBus bus;
 	AnimeDetailsView self;
+	JLabel imageLabel;
 	
 	
 	public AnimeDetailsView()
@@ -37,6 +38,7 @@ public class AnimeDetailsView extends JPanel {
 	private void initComponents()
 	{
 		self=this;
+		imageLabel=new JLabel();
 		controller=new Controller();
 		bus = EventBus.getInstance();
 		bus.subscribe(controller, "site_list_changed");
@@ -44,6 +46,7 @@ public class AnimeDetailsView extends JPanel {
 	private void setUp()
 	{
 		super.setLayout(new GridLayout(1,0));
+		super.add(imageLabel);
 	}
 	
 	class Controller implements EventSubscriber
@@ -89,7 +92,7 @@ public class AnimeDetailsView extends JPanel {
 			{
 				currentAnime = (Anime) o;
 				System.out.println(currentAnime.getRomajiName());
-				self.add(new JLabel(new ImageIcon(getImage())));
+				imageLabel.setIcon(new ImageIcon(getImage()));
 				self.revalidate();
 			}
 			

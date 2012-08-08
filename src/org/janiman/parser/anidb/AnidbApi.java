@@ -6,6 +6,7 @@ import java.util.List;
 import org.janiman.db.impl.DBMapper;
 import org.janiman.event.bus.EventBus;
 import org.janiman.util.UtilEd2k;
+import org.janiman.gui.addFiles.MyHashFile;
 import org.janiman.gui.dialog.usersettings.AnidbUser;
 import org.janiman.gui.dialog.usersettings.AnidbUserFactory;
 
@@ -43,8 +44,7 @@ public class AnidbApi {
 	}
 
 
-	public void hashAndAddFiles(ArrayList<java.io.File> files) {
-		waitTimeout();
+	public void hashAndAddFiles(ArrayList<MyHashFile> files) {
 		try {
 			conn = factory.connect(1025);
 			conn.authenticate(user.getUsername(), user.getPassword());
@@ -64,36 +64,40 @@ public class AnidbApi {
 		
 		
 		
-		for (java.io.File file : files) {
+		for (MyHashFile file : files) {
 			//Hashing
-			bus.publishEvent("anidbapi_add_message", new String( "Started Hashing File" + file.getAbsolutePath()));
-			String ed2kHash = UtilEd2k.generateEd2kHash(file);
+			
+ 
 			bus.publishEvent("anidbapi_add_message", new String(
-					"Hashing success : " + ed2kHash));
-			bus.publishEvent("anidbapi_add_message", new String(
-					"Revieving File infos"));
+					"Getting File infos"));
 			try {
-
+				//check if still logged in
+				if(!conn.isLoggedIn())
+				{
+					conn.authenticate(user.getUsername(), user.getPassword());
+				}
 				// Revieve File data;
-				List<File> erg = conn.getFiles(file.length(), ed2kHash,
+				List<File> erg = conn.getFiles(file.getFile().length(), file.getEd2kHash(),
 						fileMask, animeMask);
-				System.out.println("Adding File" + file.getAbsolutePath());
+				System.out.println("Adding File" + file.getFile().getAbsolutePath());
 				File toInsert = erg.get(0);
 
 				// Adding file+episodedata to database;
 				bus.publishEvent("anidbapi_add_message", new String(
 						"Adding File+Episode Infos to Database"));
+				
+				
 				mapper.addADBFile(toInsert);
-				waitTimeout();
+
 				mapper.addADBEpisode(toInsert.getEpisode(),
 						toInsert.getFileId());
-				waitTimeout();
-				mapper.addFileLoc(file.getAbsolutePath(), toInsert.getEpisode()
-						.getAnime().getAnimeId(), ed2kHash, toInsert
+
+				mapper.addFileLoc(file.getFile().getAbsolutePath(), toInsert.getEpisode()
+						.getAnime().getAnimeId(), file.getEd2kHash(), toInsert
 						.getEpisode().getEpisodeId(), toInsert.getFileId());
 				bus.publishEvent("hashEvent_success", new String(toInsert
 						.getEpisode().getAnime().getRomajiName()));
-				waitTimeout();
+
 
 				if (!(mapper.isAlreadyInDatabase(toInsert.getEpisode()
 						.getAnime().getAnimeId()))) {
@@ -109,7 +113,7 @@ public class AnidbApi {
 					mapper.addADBCategory(abb);
 					bus.publishEvent("anidbapi_add_message", new String(
 							"Writing Anime Infos to Database - Success"));
-					waitTimeout();
+		
 					// TODO - add hashed files to mylist;
 
 				} }
@@ -118,7 +122,16 @@ public class AnidbApi {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (AniDbException e) {
-				// TODO Auto-generated catch block
+				if(e.getReturnCode()==602)
+				{
+					System.out.println("Server Busy");
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 				e.printStackTrace();
 			}
 
@@ -166,22 +179,7 @@ public class AnidbApi {
 		return userId;
 	}
 
-	private void waitTimeout() {
-		if (lastUsedTime != 0) {
-			long deltaTime = System.currentTimeMillis() - lastUsedTime;
-			if (deltaTime > TIMEOUT) {
 
-			} else {
-				try {
-					Thread.sleep(TIMEOUT - deltaTime);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-		}
-	}
 
 	public void reloadUser() {
 		user = AnidbUserFactory.getInstance().loadUserData();
