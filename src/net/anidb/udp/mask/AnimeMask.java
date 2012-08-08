@@ -34,6 +34,12 @@ public class AnimeMask extends Mask {
 			true, true, true, true, true, true, true, true, true, true, true,
 			true, true, true, true, true, true);
 	
+	public final static AnimeMask MYMASK = new AnimeMask(true, true, true, true,
+			true, true, true, true, true, true, true, true, true, true, true,
+			true, true, true, true, true, true, true, true, true, true, true,
+			true, true, true, true, true, true, true, false, false, false, false,
+			false, false, false, false, false, false);
+	
 	/** The anime Id. */
 	private boolean animeId;
 	/** The year. */
