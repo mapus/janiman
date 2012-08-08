@@ -302,17 +302,21 @@ public class DBMapper implements IDBMapper {
 	public boolean isAlreadyInDatabase(long anidbId)
 	{
 		boolean returnValue = false;
+		ResultSet set = null;
 		try {
-			ResultSet set = stat.executeQuery("SELECT * FROM adbAnime WHERE animeId="+anidbId+";");
+			set = stat.executeQuery("SELECT * FROM adbAnime WHERE animeId="+anidbId+";");
 			if(set.next())
 			{
 				returnValue=true;
 			}
+
 				
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		
 		return returnValue;
 	}
 	public void addEpisode(MALEpisode epi, java.io.File episode)
@@ -349,13 +353,10 @@ public class DBMapper implements IDBMapper {
 			prep.setLong(4,aniDBepisodeId);
 			prep.setLong(5,adbFileId);
 			prep.addBatch();
-			conn.setAutoCommit(false);
 			prep.executeBatch();
-			conn.setAutoCommit(true);
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 	}
 	public void addFolder(MALAnime anime, java.io.File folder)
@@ -374,7 +375,7 @@ public class DBMapper implements IDBMapper {
 		}
 		
 	}
-	public void addADBCategory(Anime e)
+	public synchronized void addADBCategory(Anime e)
 	{
 		try {
 			prep=conn.prepareStatement("insert into category values(?,?);");
@@ -387,15 +388,13 @@ public class DBMapper implements IDBMapper {
 				prep.setString(2,toInsert);
 				prep.addBatch();
 			}
-			conn.setAutoCommit(false);
 			prep.executeBatch();
-			conn.setAutoCommit(true);
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
-	public void addADBEpisode(Episode e,long fileId)
+	public synchronized void addADBEpisode(Episode e,long fileId)
 	{
 		
 		try {
@@ -405,15 +404,19 @@ public class DBMapper implements IDBMapper {
 			prep.setLong(3,fileId);
 			prep.setLong(4,e.getEpisodeId());
 			prep.setLong(5,e.getVotes());
-			//TODO not null
-			prep.setLong(6,e.getLength());
+			if(e.getLength()!=null)
+				prep.setLong(6,e.getLength());
 
 			prep.setString(7,e.getEnglishTitle());
 			prep.setString(8,e.getRomajiTitle());
 			prep.setString(9,e.getKanjiTitle());
-			prep.setLong(10,e.getAired());
+			if(e.getAired()!=null)
+				prep.setLong(10,e.getAired());
 			prep.addBatch();
+			
+			conn.setAutoCommit(false);
 			prep.executeBatch();
+			conn.setAutoCommit(true);
 		} catch (SQLException e1) {
 			System.err.println(e1.getMessage());
 		}
@@ -422,7 +425,7 @@ public class DBMapper implements IDBMapper {
 	 * Trägt das file ein und die episode
 	 * @param file
 	 */
-	public void addADBFile(File file)
+	public synchronized void addADBFile(File file)
 	{
 		//Insert in adbfile table;
 		try {
@@ -469,8 +472,6 @@ public class DBMapper implements IDBMapper {
 			prep.setString(18,file.getDescription());
 			prep.setLong(19,file.getAiredDate());
 			prep.setString(20,file.getAniDbFileName());
-			prep.addBatch();
-			//Episode Eintragen;
 			prep.executeBatch();
 			/*
 					"adbanimeId LONG PRIMARY KEY," +
@@ -492,75 +493,46 @@ public class DBMapper implements IDBMapper {
 		
 	}
 	
-	public void addADBAnime(Anime anime)
+	public synchronized void addADBAnime(Anime anime)
 	{
-		/**
-		 * CRATE TABLE IF NOT EXISTS adbAnime(" +
-					"animeId LONG PRIMARY KEY," +
-					"year STRING," +
-					"type STRING," +
-					"romanjiName STRING," +
-					"kanjiName STRING," +
-					"englishName STRING," +
-					"episodes LONG," +
-					"normalEpisodeCount LONG," +
-					"airDate LONG," +
-					"url STRING," +
-					"picname STRING," +
-					"rating LONG," +
-					"voteCount LONG," +
-					"tempRating LONG," +
-					"tempVoteCount LONG," +
-					"averageReviewRating LONG," +
-					"reviewCount LONG," +
-					"is18PlusRestricted BOOLEAN," +
-					"animePlanetId LONG," +
-					"annId LONG," +
-					"allCinemaId LONG," +
-					"animeNfoId STRING," +
-					"dataRecordUpdate LONG," +
-					"specialCount LONG," +
-					"creditsCount LONG," +
-					"otherCount LONG," +
-					"trailerCount LONG," +
-					"parodyCount);");
-		 */
+
 		try {
-			PreparedStatement prep = conn.prepareStatement("INSERT INTO adbAnime values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-			prep.setLong(1,anime.getAnimeId());
-			prep.setString(2,anime.getYear());
-			prep.setString(3,anime.getType());
-			prep.setString(4,anime.getRomajiName());
-			prep.setString(5,anime.getKanjiName());
-			prep.setString(6,anime.getEnglishName());
-			prep.setLong(7,anime.getEpisodes());
-			prep.setLong(8,anime.getNormalEpisodeCount());
-			prep.setLong(9,anime.getAirDate());
-			prep.setString(10,anime.getUrl());
-			prep.setString(11,anime.getPicname());
-			prep.setLong(12,anime.getRating());
-			prep.setLong(13,anime.getVoteCount());
-			prep.setLong(14,anime.getTempRating());
-			prep.setLong(15,anime.getTempVoteCount());
-			prep.setLong(16,anime.getAverageReviewRating());
-			prep.setLong(17,anime.getReviewCount());
-			prep.setBoolean(18,anime.get18PlusRestricted());
-			prep.setLong(19,anime.getAnimePlanetId());
-			prep.setLong(20,anime.getAnnId());
-			prep.setLong(21,anime.getAllCinemaId());
-			prep.setString(22,anime.getAnimeNfoId());
-			prep.setLong(23,anime.getDateRecordUpdated());
-			prep.setLong(24,anime.getSpecialsCount());
-			prep.setLong(25,anime.getCreditsCount());
-			prep.setLong(26,anime.getOtherCount());
-			prep.setLong(27,anime.getTrailerCount());
-			prep.setLong(28,anime.getParodyCount());
-			prep.addBatch();
-			prep.executeBatch();
+			PreparedStatement prepe;
+			prepe= conn.prepareStatement("INSERT INTO adbAnime values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
 			
+			prepe.setLong(1,anime.getAnimeId());
+			prepe.setString(2,anime.getYear());
+			prepe.setString(3,anime.getType());
+			prepe.setString(4,anime.getRomajiName());
+			prepe.setString(5,anime.getKanjiName());
+			prepe.setString(6,anime.getEnglishName());
+			prepe.setLong(7,anime.getEpisodes());
+			prepe.setLong(8,anime.getNormalEpisodeCount());
+			prepe.setLong(9,anime.getAirDate());
+			prepe.setString(10,anime.getUrl());
+			prepe.setString(11,anime.getPicname());
+			prepe.setLong(12,anime.getRating());
+			prepe.setLong(13,anime.getVoteCount());
+			prepe.setLong(14,anime.getTempRating());
+			prepe.setLong(15,anime.getTempVoteCount());
+			prepe.setLong(16,anime.getAverageReviewRating());
+			prepe.setLong(17,anime.getReviewCount());
+			prepe.setBoolean(18,anime.get18PlusRestricted());
+			prepe.setLong(19,anime.getAnimePlanetId());
+			prepe.setLong(20,anime.getAnnId());
+			prepe.setLong(21,anime.getAllCinemaId());
+			prepe.setString(22,anime.getAnimeNfoId());
+			
+			prepe.addBatch();
+			conn.setAutoCommit(false);
+			prepe.executeBatch();
+			conn.setAutoCommit(true);
+			
+	
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
+		
 	}
 	public ArrayList<Anime> fetchOwnADBAnime()
 	{		/**
