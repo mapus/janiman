@@ -14,9 +14,10 @@ import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 
+import org.janiman.parser.anidb.AnidbApi;
 import org.janiman.parser.myanimelist.MALApi;
 
-public class MALUserSettingsDialog extends JDialog {
+public class AnidbUserSettingsDialog extends JDialog {
 
 	JPanel contentPanel;
 	JLabel labelName, labelPassword;
@@ -27,10 +28,11 @@ public class MALUserSettingsDialog extends JDialog {
 	JProgressBar progressBar;
 	SwingWorker worker;
 
-	public MALUserSettingsDialog(JFrame owner) {
+	public AnidbUserSettingsDialog(JFrame owner) {
 		super(owner,true);
 		initComponents();
 		setUp();
+		super.pack();
 	}
 
 	private void initComponents() {
@@ -45,11 +47,11 @@ public class MALUserSettingsDialog extends JDialog {
 
 		buttonSave = new JButton("Save");
 		buttonSave.setActionCommand("save");
-		buttonSave.addActionListener(new MALUserSettingsViewController());
+		buttonSave.addActionListener(new AnidbUserSettingsController());
 
 		buttonBack = new JButton("Back");
 		buttonBack.setActionCommand("back");
-		buttonBack.addActionListener(new MALUserSettingsViewController());
+		buttonBack.addActionListener(new AnidbUserSettingsController());
 		
 		progressBar = new JProgressBar();
 
@@ -78,7 +80,7 @@ public class MALUserSettingsDialog extends JDialog {
 		super.dispose();
 	}
 
-	class MALUserSettingsViewController implements ActionListener {
+	class AnidbUserSettingsController implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -103,18 +105,19 @@ public class MALUserSettingsDialog extends JDialog {
 						//Test if input Correct
 						labelInfo.setText("verifying credentials");
 						progressBar.setEnabled(true);
-						MALApi api = MALApi.getInstance();
-						int malId = api.verifyCredentials(name, pw);
+						AnidbApi api = AnidbApi.getInstance();
+						long anidbId = api.validateUser(name, pw);
 						
-						if(malId==-1)
+						if(anidbId==-1)
 						{
 							labelInfo.setText("Invalid Credentials");
 						}
 						else
 						{
-							 MALUserFactory.getInstance().saveUserData(name,pw,malId);
+							 AnidbUserFactory.getInstance().saveUserData(name,pw,anidbId);
 							 labelInfo.setText("Success");
-							 System.out.println(malId);
+							 System.out.println(anidbId);
+							 api.reloadUser();
 							
 						}
 						}

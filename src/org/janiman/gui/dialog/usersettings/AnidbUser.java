@@ -1,6 +1,8 @@
-package org.janiman.parser.anidb;
+package org.janiman.gui.dialog.usersettings;
 
-public class AnidbUser {
+import java.io.Serializable;
+
+public class AnidbUser implements Serializable {
 	public String getPassword() {
 		return password;
 	}
@@ -13,14 +15,14 @@ public class AnidbUser {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	public int getId() {
+	public long getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 	private String password;
 	private String username;
-	private int id;
+	private long id;
 
 }

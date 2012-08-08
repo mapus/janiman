@@ -5,13 +5,15 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractListModel;
 
+import net.anidb.Anime;
+
 import org.janiman.parser.myanimelist.MALAnime;
 
 public class AnimeListModel extends AbstractListModel {
 	
-	public ArrayList<MALAnime> listData;
+	public ArrayList<Anime> listData;
 	
-	public AnimeListModel(ArrayList<MALAnime> listData)
+	public AnimeListModel(ArrayList<Anime> listData)
 	{
 		this.listData=listData;
 	}
@@ -23,7 +25,7 @@ public class AnimeListModel extends AbstractListModel {
 
 	@Override
 	public Object getElementAt(int index) {
-		return listData.get(index);
+		return listData.get(index).getRomajiName();
 	}
 
 }

@@ -26,99 +26,92 @@ import org.janiman.db.impl.DBMapper;
 import org.janiman.parser.myanimelist.MALAnime;
 import org.janiman.parser.myanimelist.MALApi;
 
-public class NewAnimeController implements PropertyChangeListener, ActionListener {
-	
+public class NewAnimeController implements PropertyChangeListener,
+		ActionListener {
+
 	SearchBarView searchBar;
 	MALAnimeTable tableView;
 	String lastSearchValue;
 	ArrayList<MALAnime> list;
 	NewAnimeView mainView;
 	MALAnime selected;
-	
+
 	ArrayList<PropertyChangeListener> listener = new ArrayList<PropertyChangeListener>();
-	
-	public void addPropertyChangeListener(PropertyChangeListener pcl)
-	{
+
+	public void addPropertyChangeListener(PropertyChangeListener pcl) {
 		listener.add(pcl);
 	}
-	public void removeropertyChangeListener(PropertyChangeListener pcl)
-	{
+
+	public void removeropertyChangeListener(PropertyChangeListener pcl) {
 		listener.remove(pcl);
 	}
-	private void firePropertyChange(PropertyChangeEvent ev)
-	{
-		for(PropertyChangeListener ppc : listener)
-		{
+
+	private void firePropertyChange(PropertyChangeEvent ev) {
+		for (PropertyChangeListener ppc : listener) {
 			ppc.propertyChange(ev);
 		}
 	}
-	
-	public NewAnimeController()
-	{
+
+	public NewAnimeController() {
 		initComponents();
 		setUp();
 	}
-	public NewAnimeView getView()
-	{
+
+	public NewAnimeView getView() {
 		return mainView;
 	}
-	private void initComponents()
-	{
+
+	private void initComponents() {
 		searchBar = new SearchBarView();
-		list=new ArrayList<MALAnime>();
-		tableView=new MALAnimeTable(list);
-		
-		mainView = new NewAnimeView(searchBar,tableView);
+		list = new ArrayList<MALAnime>();
+		tableView = new MALAnimeTable(list);
+
+		mainView = new NewAnimeView(searchBar, tableView);
 	}
-	public MALAnime getSelected()
-	{
+
+	public MALAnime getSelected() {
 		return selected;
 	}
-	private void setUp()
-	{
+
+	private void setUp() {
 		searchBar.addPropertyChangeListener(this);
 		mainView.addActionListener(this);
 	}
-	
-	
+
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		String newSearchValue = (String) evt.getNewValue();
-		if(lastSearchValue!=newSearchValue)
-		{
-			list=MALApi.getInstance().findMALAnime((String)evt.getNewValue());
+		if (lastSearchValue != newSearchValue) {
+			list = MALApi.getInstance()
+					.findMALAnime((String) evt.getNewValue());
 			System.out.println("searching da web");
-				
-			
-			for(MALAnime anime : list)
-			{
-		
+
+			for (MALAnime anime : list) {
+
 				DBMapper.getInstance().addMALAnime(anime);
-				
-				System.out.println(anime.getTitle());	
+
+				System.out.println(anime.getTitle());
 
 			}
 			tableView.setData(list);
 		}
-		
-		
+
 	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getActionCommand().equals("cancel"))
-		{
-			//TODO
+		if (e.getActionCommand().equals("cancel")) {
+			// TODO
 		}
-		if(e.getActionCommand().equals("next"))
-		{
-			if(tableView.getSelectedRow()>=0)
-			{
+		if (e.getActionCommand().equals("next")) {
+			if (tableView.getSelectedRow() >= 0) {
 				selected = list.get(tableView.getSelectedRow());
 				System.out.println("firePropertyChange");
-				firePropertyChange(new PropertyChangeEvent(this,"MALAnime_selected",selected.getId(),selected.getId()));
+				firePropertyChange(new PropertyChangeEvent(this,
+						"MALAnime_selected", selected.getId(), selected.getId()));
 			}
 		}
-		
+
 	}
 
 }

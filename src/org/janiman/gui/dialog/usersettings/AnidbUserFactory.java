@@ -7,24 +7,26 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class MALUserFactory {
+public class AnidbUserFactory  {
 	
 	public static String SAVE_FILE_NAME = "usersettings.big";
-	private static MALUserFactory instance = new MALUserFactory();
-	private MALUser user = new MALUser();;
+	private static AnidbUserFactory instance = new AnidbUserFactory();
+	private AnidbUser user = new AnidbUser();
 	
-	private MALUserFactory()
+	private AnidbUserFactory()
 	{
+
 	}
-	public static MALUserFactory getInstance()
+	public static AnidbUserFactory getInstance()
 	{
-		return MALUserFactory.instance;
+		return instance;
+
 	}
-	public MALUser getMALUser()
+	public AnidbUser getAnidbUser()
 	{
 		return user;
 	}
-	public void saveUserData(String username, String password, int id)
+	public void saveUserData(String username, String password, long anidbApi)
 	{
 		try {
 			FileOutputStream fos = new FileOutputStream(SAVE_FILE_NAME);
@@ -32,7 +34,7 @@ public class MALUserFactory {
 			
 			user.setUsername(username);
 			user.setPassword(password);
-			user.setMALid(id);
+			user.setId(anidbApi);
 			
 			oos.writeObject(user);
 			
@@ -48,20 +50,19 @@ public class MALUserFactory {
 		}
 		 
 	}		
-	public MALUser loadUserData()
+	public AnidbUser loadUserData()
 	{
 		try {
 			FileInputStream fis = new FileInputStream(SAVE_FILE_NAME);
 			ObjectInputStream ooi = new ObjectInputStream(fis);
-			user = (MALUser) ooi.readObject();
+			user = (AnidbUser) ooi.readObject();
 			
 			ooi.close();
 			fis.close();
 			
 		
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
