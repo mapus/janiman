@@ -92,20 +92,8 @@ public class AddFilesView extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			if(e.getActionCommand().equals("start"))
 			{
-				worker = new SwingWorker()
-				{
-					
-					@Override
-					protected Object doInBackground() throws Exception {
-						progressBar.setIndeterminate(true);
-						AnidbApi.getInstance().hashAndAddFiles(new ArrayList<File>(Arrays.asList(files)));
-						
-						progressBar.setIndeterminate(false);
-						return null;
-					}
-					
-				};
-				worker.execute();
+				AddFilesThread thread =new AddFilesThread(new ArrayList<File>(Arrays.asList(files)),progressBar);
+				thread.run();
 				bus.publishEvent("update_side_list", null);
 			}
 			

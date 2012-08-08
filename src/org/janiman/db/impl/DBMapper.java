@@ -18,6 +18,7 @@ import net.anidb.Group;
 import net.anidb.RelatedEpisode;
 
 import org.janiman.db.IDBMapper;
+import org.janiman.db.impl.et.JAMEpisode;
 import org.janiman.db.impl.et.MALEpisode;
 import org.janiman.parser.myanimelist.MALAnime;
 
@@ -205,7 +206,7 @@ public class DBMapper implements IDBMapper {
 					"adbfileId LONG," +
 					"adbepisodeId LONG," +
 					"votes LONG," +
-					"length LONG" +
+					"length LONG," +
 					"englishTitle STRING," +
 					"romajiTitle STRING," +
 					"kanjiTitle STRING," +
@@ -300,12 +301,12 @@ public class DBMapper implements IDBMapper {
 	}
 	public boolean isAlreadyInDatabase(long anidbId)
 	{
-		boolean returnValue = true;
+		boolean returnValue = false;
 		try {
 			ResultSet set = stat.executeQuery("SELECT * FROM adbAnime WHERE animeId="+anidbId+";");
-			if(set.wasNull())
+			if(set.next())
 			{
-				returnValue = false;
+				returnValue=true;
 			}
 				
 		} catch (SQLException e) {
@@ -394,28 +395,25 @@ public class DBMapper implements IDBMapper {
 			e1.printStackTrace();
 		}
 	}
-	public void addADBEpisode(Episode e)
+	public void addADBEpisode(Episode e,long fileId)
 	{
+		
 		try {
-			prep=conn.prepareStatement("insert into adbEpisodes values(? ,? ,? ,? ,? ,? ,? ,? ,?);");
+			prep=conn.prepareStatement("insert into adbEpisodes values(? ,? ,? ,? ,? ,? ,? ,? ,? ,?);");
 			prep.setLong(1,e.getAnime().getAnimeId());
 			prep.setString(2,e.getEpisodeNumber());
-			prep.setLong(3,e.getEpisodeId());
-			prep.setLong(4,e.getVotes());
-			if(e.getLength()!=null)
-			{
-			prep.setLong(5,e.getLength());
-			}
-			if(e.getEnglishTitle()!=null)
-				prep.setString(6,e.getEnglishTitle());
-			prep.setString(7,e.getRomajiTitle());
-			prep.setString(8,e.getKanjiTitle());
-			if(e.getAired()!=null)
-				prep.setLong(9,e.getAired());
+			prep.setLong(3,fileId);
+			prep.setLong(4,e.getEpisodeId());
+			prep.setLong(5,e.getVotes());
+			//TODO not null
+			prep.setLong(6,e.getLength());
+
+			prep.setString(7,e.getEnglishTitle());
+			prep.setString(8,e.getRomajiTitle());
+			prep.setString(9,e.getKanjiTitle());
+			prep.setLong(10,e.getAired());
 			prep.addBatch();
-			conn.setAutoCommit(false);
 			prep.executeBatch();
-			conn.setAutoCommit(true);
 		} catch (SQLException e1) {
 			System.err.println(e1.getMessage());
 		}
@@ -473,9 +471,7 @@ public class DBMapper implements IDBMapper {
 			prep.setString(20,file.getAniDbFileName());
 			prep.addBatch();
 			//Episode Eintragen;
-			conn.setAutoCommit(false);
 			prep.executeBatch();
-			conn.setAutoCommit(true);
 			/*
 					"adbanimeId LONG PRIMARY KEY," +
 					"episodeNumber STRING,"+
@@ -487,20 +483,7 @@ public class DBMapper implements IDBMapper {
 					"kanjiTitle STRING," +
 					"aired LONG);");
 			 */
-			
-			Episode e = file.getEpisode();
-			
-			
-			/**
-			 * CRATE TABLE IF NOT EXISTS category(" +
-					"animeId LONG," +
-					"category STRING," +
-					"PRIMARY KEY(animeId,category));");
-			 */
-			
-			prep=conn.prepareStatement("insert into category values(?,?);");
 
-			
 			
 					
 		} catch (SQLException e) {
@@ -573,9 +556,7 @@ public class DBMapper implements IDBMapper {
 			prep.setLong(27,anime.getTrailerCount());
 			prep.setLong(28,anime.getParodyCount());
 			prep.addBatch();
-			conn.setAutoCommit(false);
 			prep.executeBatch();
-			conn.setAutoCommit(true);
 			
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -676,6 +657,32 @@ public class DBMapper implements IDBMapper {
 		}
 		
 		return result;
+	}
+	public ArrayList<JAMEpisode> fetchEpisodes(long animeId)
+	{
+		ArrayList<JAMEpisode> episodes = new ArrayList<JAMEpisode>();
+		ResultSet rs;
+		
+		try {
+			rs=stat.executeQuery("SELECT * FROM adbEpisodes WHERE adbanimeId IN ( SELECT adbAnimeId FROM fileloc WHERE adbAnimeId ="+animeId+");");
+			while(rs.next())
+			{
+				JAMEpisode episode = new JAMEpisode();
+				episode.setEpisodeId(rs.getLong("epId"));
+				episode.setVotes(rs.getLong("votes"));
+				episode.setLength(rs.getLong("length"));
+				episode.setRomajiTitle(rs.getString("romanjiTitle"));
+			}
+
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		return episodes;
 	}
 	
 	public ArrayList<MALAnime> fetchOwnAnime()
