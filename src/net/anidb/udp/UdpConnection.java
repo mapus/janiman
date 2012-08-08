@@ -77,7 +77,9 @@ public class UdpConnection {
 	/** The time between the bonus packets in milliseconds. */
 	public final static int TIME_BETWEEN_BONUS_PACKETS = 500;
 	/** The time between normal packets in milliseconds. */
-	public final static int TIME_BETWEEN_NORMAL_PACKETS = 30000;
+	
+	//public final static int TIME_BETWEEN_NORMAL_PACKETS = 30000;
+	public final static int TIME_BETWEEN_NORMAL_PACKETS = 6000;
 	/** The client name of the Java AniDB API. */
 	public final static String CLIENT_NAME = "javaanidbapi";
 	/** The client version of this version of the Java AniDB API. */
