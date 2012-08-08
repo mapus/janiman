@@ -21,6 +21,7 @@ import net.anidb.Anime;
 import org.janiman.db.impl.DBMapper;
 import org.janiman.event.bus.EventBus;
 import org.janiman.event.bus.EventSubscriber;
+import org.janiman.gui.dialog.homefolder.SelectHomeFolderDialog;
 import org.janiman.parser.myanimelist.MALAnime;
 
 public class ListView extends JPanel implements EventSubscriber {
@@ -117,12 +118,14 @@ public class ListView extends JPanel implements EventSubscriber {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(e.equals("select_home_folder"))
+			if(e.getActionCommand().equals("select_home_folder"))
 			{
 				Anime selected = data.get(list.getSelectedIndex());
 				if(selected!=null)
 				{
-					//TODO show dialog to select home folder;
+					SelectHomeFolderDialog homdialog = new SelectHomeFolderDialog(selected);
+					homdialog.setVisible(true);
+					homdialog.pack();
 				}
 			}
 			

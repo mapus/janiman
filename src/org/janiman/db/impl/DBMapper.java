@@ -50,6 +50,7 @@ public class DBMapper implements IDBMapper {
 		setUpDatabaseADBEpisode();
 		setUpDatabaseADBAnime();
 		setUpDatabaseADBCategory();
+		setUpDatabaseADBHomeFolder();
 	}
 
 	private void setUpDatabase() {
@@ -294,6 +295,18 @@ public class DBMapper implements IDBMapper {
 					"animeId LONG," +
 					"category STRING," +
 					"UNIQUE(animeId,category));");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public void setUpDatabaseADBHomeFolder()
+	{
+		try {
+			stat.execute("CREATE TABLE IF NOT EXISTS homeFolder(" +
+					"animeId LONG," +
+					"fileloc STRING," +
+					"UNIQUE(animeId));");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -694,6 +707,48 @@ public class DBMapper implements IDBMapper {
 		}
 		
 		return result;
+	}
+	public String fetchHomeFolder(long anidbId)
+	{
+		/*
+		 * 			"animeId LONG," +
+					"fileloc STRING," +
+					"UNIQUE(animeId));");
+		 */
+		String homeFolder = null;
+		ResultSet rs;
+		
+		try {
+			rs=stat.executeQuery("SELECT * FROM homeFolder WHERE animeId="+anidbId+";");
+			while(rs.next())
+			{
+				homeFolder=rs.getString("fileloc");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return homeFolder;
+		
+	}
+	public void addHomeFolder(String folder,long anidbId)
+	{
+		PreparedStatement prep;
+		
+		try {
+			prep=conn.prepareStatement("INSERT INTO homeFolder values(?,?);");
+			prep.setLong(1,anidbId);
+			prep.setString(2,folder);
+			prep.addBatch();
+			conn.setAutoCommit(false);
+			prep.executeBatch();
+			conn.setAutoCommit(true);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	public Map<Integer,String> fetchFolderMap()
 	{
