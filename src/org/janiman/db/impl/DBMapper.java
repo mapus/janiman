@@ -51,6 +51,7 @@ public class DBMapper implements IDBMapper {
 		setUpDatabaseADBAnime();
 		setUpDatabaseADBCategory();
 		setUpDatabaseADBHomeFolder();
+		setUpDatabaseADBDescription();
 	}
 
 	private void setUpDatabase() {
@@ -300,6 +301,18 @@ public class DBMapper implements IDBMapper {
 			e.printStackTrace();
 		}
 	}
+	private void setUpDatabaseADBDescription()
+	{
+		try {
+			stat.execute("CREATE TABLE IF NOT EXISTS adbDescription(" +
+					"animeId LONG," +
+					"description," +
+					"UNIQUE(animeId));");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	public void setUpDatabaseADBHomeFolder()
 	{
 		try {
@@ -388,6 +401,67 @@ public class DBMapper implements IDBMapper {
 		}
 		
 	}
+	public void addMALAnimeList(ArrayList<MALAnime> inputList)
+	{
+		
+	}
+
+	public void addMALAnime(MALAnime anime) {
+		try {
+			PreparedStatement prep = conn
+					.prepareStatement("insert into maldump values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+			/*
+			 * 	private int id;
+				private String title;
+				private String synopsis;
+				private String type;
+				private String rank;
+				private String popularity_rank;
+				private String image_url;
+				private int episodes;
+				private String status;
+				private String start_date;
+				private String end_date;
+				private String classification;
+				private String members_score;
+				private int members_count;
+				private String favorited_count;
+				private int listed_anime_id;
+				private int watched_episodes;
+				private String score;
+				private String watchedStatus;
+	
+			 */
+			prep.setInt(1,anime.getId());
+			prep.setString(2,anime.getTitle());
+			prep.setString(3,anime.getSynopsis());
+			prep.setString(4,anime.getType());
+			prep.setString(5,anime.getRank());
+			prep.setString(6,anime.getPopularity_rank());
+			prep.setString(7,anime.getImage_url());
+			prep.setInt(8,anime.getEpisodes());
+			prep.setString(9,anime.getStatus());
+			prep.setString(10,anime.getStart_date());
+			prep.setString(11,anime.getEnd_date());
+			prep.setString(12,anime.getClassification());
+			prep.setString(13,anime.getMembers_score());
+			prep.setInt(14,anime.getMembers_count());
+			prep.setString(15,anime.getFavorited_count());
+			prep.setInt(16,anime.getListed_anime_id());
+			prep.setInt(17,anime.getWatched_episodes());
+			prep.setString(18,anime.getScore());
+			prep.setString(19,anime.getWatched_status());
+			
+			prep.addBatch();
+			conn.setAutoCommit(false);
+			prep.executeBatch();
+			conn.setAutoCommit(true);
+			
+		} catch (SQLException e) {
+			System.err.println("Sql Exception");
+		}
+	}
+
 	public synchronized void addADBCategory(Anime e)
 	{
 		try {
@@ -434,10 +508,51 @@ public class DBMapper implements IDBMapper {
 			System.err.println(e1.getMessage());
 		}
 	}
+	public void addHomeFolder(String folder,long anidbId)
+	{
+		PreparedStatement prep;
+		
+		try {
+			prep=conn.prepareStatement("INSERT INTO homeFolder values(?,?);");
+			prep.setLong(1,anidbId);
+			prep.setString(2,folder);
+			prep.addBatch();
+			conn.setAutoCommit(false);
+			prep.executeBatch();
+			conn.setAutoCommit(true);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Trägt das file ein und die episode
 	 * @param file
 	 */
+	public void addADBDescription(long animeId,String des)
+	{
+		/*
+		 * CREATE TABLE IF NOT EXISTS adbDescription(" +
+					"animeId LONG," +
+					"description," +
+		 */
+		try {
+			PreparedStatement prep = conn.prepareStatement("INSERT INTO adbDescription values(?,?);");
+			prep.setLong(1,animeId);
+			prep.setString(2,des);
+			prep.addBatch();
+			conn.setAutoCommit(false);
+			prep.executeBatch();
+			conn.setAutoCommit(true);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public synchronized void addADBFile(File file)
 	{
 		//Insert in adbfile table;
@@ -485,7 +600,10 @@ public class DBMapper implements IDBMapper {
 			prep.setString(18,file.getDescription());
 			prep.setLong(19,file.getAiredDate());
 			prep.setString(20,file.getAniDbFileName());
+			prep.addBatch();
+			conn.setAutoCommit(false);
 			prep.executeBatch();
+			conn.setAutoCommit(true);
 			/*
 					"adbanimeId LONG PRIMARY KEY," +
 					"episodeNumber STRING,"+
@@ -643,9 +761,9 @@ public class DBMapper implements IDBMapper {
 		
 		return result;
 	}
-	public ArrayList<JAMEpisode> fetchEpisodes(long animeId)
+	public synchronized ArrayList<Episode> fetchEpisodes(long animeId)
 	{
-		ArrayList<JAMEpisode> episodes = new ArrayList<JAMEpisode>();
+		ArrayList<Episode> episodes = new ArrayList<Episode>();
 		ResultSet rs;
 		
 		try {
@@ -653,21 +771,82 @@ public class DBMapper implements IDBMapper {
 			while(rs.next())
 			{
 				JAMEpisode episode = new JAMEpisode();
-				episode.setEpisodeId(rs.getLong("epId"));
+				episode.setEpisodeNumber(rs.getString("epId"));
+				episode.setEpisodeId(rs.getLong("adbepisodeId"));
 				episode.setVotes(rs.getLong("votes"));
 				episode.setLength(rs.getLong("length"));
-				episode.setRomajiTitle(rs.getString("romanjiTitle"));
+				episode.setRomajiTitle(rs.getString("romajiTitle"));
+				episode.setEnglishTitle(rs.getString("englishTitle"));
+				episode.setKanjiTitle(rs.getString("kanjiTitle"));
+				episodes.add(episode);
 			}
-
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+	
 		
 		return episodes;
+	}
+	public synchronized String fetchADBDescription(long animeId)
+	{
+		/*
+		 * CREATE TABLE IF NOT EXISTS adbDescription(" +
+					"animeId LONG," +
+					"description," +
+					"UNIQUE(animeId));"
+		 */
+		ResultSet rs;
+		String desc = "No description yet";
+		try {
+			rs=stat.executeQuery("SELECT DISTINCT * FROM adbDescription WHERE animeId="+animeId+";");
+			while(rs.next())
+			{
+	
+				
+				desc = rs.getString("description");
+	
+				                                                                                                                                                      
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return desc;
+	}
+
+	public String fetchAbsFilePath(long adbEpisodeId)
+	{
+		String result = null;
+		ResultSet rs;
+		try {
+			rs=stat.executeQuery("SELECT * FROM fileloc WHERE adbEpisodeId="+adbEpisodeId+";");
+			while(rs.next())
+			{
+				result=rs.getString("absFilePath");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
+	public String fetchAbsFilePathFromFileId(long adbFileId)
+	{
+		String result = null;
+		ResultSet rs;
+		try {
+			rs=stat.executeQuery("STELECT * FROM fileloc WHERE adbFileId="+adbFileId+";");
+			while(rs.next())
+			{
+				result=rs.getString("adbFileId");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	public ArrayList<MALAnime> fetchOwnAnime()
@@ -732,24 +911,6 @@ public class DBMapper implements IDBMapper {
 		return homeFolder;
 		
 	}
-	public void addHomeFolder(String folder,long anidbId)
-	{
-		PreparedStatement prep;
-		
-		try {
-			prep=conn.prepareStatement("INSERT INTO homeFolder values(?,?);");
-			prep.setLong(1,anidbId);
-			prep.setString(2,folder);
-			prep.addBatch();
-			conn.setAutoCommit(false);
-			prep.executeBatch();
-			conn.setAutoCommit(true);
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 	public Map<Integer,String> fetchFolderMap()
 	{
 		Map<Integer,String> resultMap = new HashMap<Integer,String>();
@@ -768,62 +929,6 @@ public class DBMapper implements IDBMapper {
 
 		
 		return resultMap;
-	}
-
-	public void addMALAnime(MALAnime anime) {
-		try {
-			PreparedStatement prep = conn
-					.prepareStatement("insert into maldump values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-			/*
-			 * 	private int id;
-				private String title;
-				private String synopsis;
-				private String type;
-				private String rank;
-				private String popularity_rank;
-				private String image_url;
-				private int episodes;
-				private String status;
-				private String start_date;
-				private String end_date;
-				private String classification;
-				private String members_score;
-				private int members_count;
-				private String favorited_count;
-				private int listed_anime_id;
-				private int watched_episodes;
-				private String score;
-				private String watchedStatus;
-
-			 */
-			prep.setInt(1,anime.getId());
-			prep.setString(2,anime.getTitle());
-			prep.setString(3,anime.getSynopsis());
-			prep.setString(4,anime.getType());
-			prep.setString(5,anime.getRank());
-			prep.setString(6,anime.getPopularity_rank());
-			prep.setString(7,anime.getImage_url());
-			prep.setInt(8,anime.getEpisodes());
-			prep.setString(9,anime.getStatus());
-			prep.setString(10,anime.getStart_date());
-			prep.setString(11,anime.getEnd_date());
-			prep.setString(12,anime.getClassification());
-			prep.setString(13,anime.getMembers_score());
-			prep.setInt(14,anime.getMembers_count());
-			prep.setString(15,anime.getFavorited_count());
-			prep.setInt(16,anime.getListed_anime_id());
-			prep.setInt(17,anime.getWatched_episodes());
-			prep.setString(18,anime.getScore());
-			prep.setString(19,anime.getWatched_status());
-			
-			prep.addBatch();
-			conn.setAutoCommit(false);
-			prep.executeBatch();
-			conn.setAutoCommit(true);
-			
-		} catch (SQLException e) {
-			System.err.println("Sql Exception");
-		}
 	}
 
 	public ArrayList<MALAnime> fetchAllMALAnime()
@@ -906,11 +1011,6 @@ public class DBMapper implements IDBMapper {
 
 		return entry;
 	}
-	public void addMALAnimeList(ArrayList<MALAnime> inputList)
-	{
-		
-	}
-
 	public static DBMapper getInstance() {
 		return instance;
 

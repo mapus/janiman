@@ -27,7 +27,7 @@ import net.anidb.util.ObjectKit;
  * (http://anidb.net/perl-bin/animedb.pl?show=userpage&uid=63935)
  * @version <b>1.0</b>, 19.12.2009
  */
-public class Episode {
+public class Episode implements Comparable<Episode> {
 	/** The episode Id. */
 	private Long episodeId;
 	/** The anime. */
@@ -270,5 +270,10 @@ public class Episode {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public int compareTo(Episode o) {
+		return Integer.valueOf(this.getEpisodeNumber()).compareTo(Integer.valueOf(o.getEpisodeNumber()));
 	}
 }

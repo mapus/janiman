@@ -172,7 +172,7 @@ public class AddFilesView extends JPanel {
 						long timeAfter = System.currentTimeMillis();
 						System.out.println("Duration : "+(timeAfter-timeBefore)/1000);
 						progressBar.setIndeterminate(false);
-						buttonStart.setEnabled(false);
+						buttonStart.setEnabled(true);
 						
 						bus.publishEvent("update_side_list", null);
 						return null;

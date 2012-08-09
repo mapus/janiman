@@ -24,7 +24,7 @@ import org.janiman.event.bus.EventSubscriber;
 import org.janiman.gui.dialog.homefolder.SelectHomeFolderDialog;
 import org.janiman.parser.myanimelist.MALAnime;
 
-public class ListView extends JPanel implements EventSubscriber {
+public class AnimeListView extends JPanel implements EventSubscriber {
 	
 	
 	/**
@@ -43,7 +43,7 @@ public class ListView extends JPanel implements EventSubscriber {
 	
 	
 	
-	public ListView()
+	public AnimeListView()
 	{
 		list=new JList();
 		loadData();
@@ -112,6 +112,7 @@ public class ListView extends JPanel implements EventSubscriber {
 				System.out.println(e.getFirstIndex());
 				Anime selected=data.get(list.getSelectedIndex());
 				bus.publishEvent("site_list_changed",selected);
+				bus.publishEvent("anime_selection_changed",selected);
 			}
 
 		}

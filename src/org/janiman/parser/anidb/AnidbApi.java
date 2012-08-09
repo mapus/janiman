@@ -113,8 +113,10 @@ public class AnidbApi {
 					mapper.addADBCategory(abb);
 					bus.publishEvent("anidbapi_add_message", new String(
 							"Writing Anime Infos to Database - Success"));
-		
-					// TODO - add hashed files to mylist;
+					
+					//Getting Synopsis
+					String description = conn.getAnimeDescription(toInsert.getEpisode().getAnime().getAnimeId());
+					mapper.addADBDescription(toInsert.getEpisode().getAnime().getAnimeId(), description);
 
 				} }
 

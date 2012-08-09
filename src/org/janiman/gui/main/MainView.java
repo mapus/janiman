@@ -1,6 +1,7 @@
 package org.janiman.gui.main;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -13,13 +14,14 @@ import org.janiman.db.impl.DBMapper;
 import org.janiman.gui.MALDetailsView;
 import org.janiman.gui.addFiles.AddFilesView;
 import org.janiman.gui.animedetails.AnimeDetailsView;
-import org.janiman.gui.list.ListView;
+import org.janiman.gui.list.AnimeListView;
+import org.janiman.gui.list.EpisodeListView;
 
 
 public class MainView extends JFrame {
 	
 	MainMenuBar menuBar;
-	ListView listview;
+	AnimeListView listview;
 	
 	JTabbedPane tabPane;
 	
@@ -39,7 +41,7 @@ public class MainView extends JFrame {
 	{
 		menuBar = new MainMenuBar(this);
 		controller = new Controller();
-		listview = new ListView();
+		listview = new AnimeListView();
 		tabPane=new JTabbedPane();
 	}
 	private void setUp()
@@ -53,12 +55,17 @@ public class MainView extends JFrame {
 	private void setUpTab1()
 	{
 		JPanel panelMain = new JPanel();
+		JPanel panelLists = new JPanel();
+		panelLists.setLayout(new GridLayout(0,1));
+		panelLists.add(listview);
+		panelLists.add(new EpisodeListView());
+		
 		panelMain.setLayout(new BorderLayout());
-		panelMain.add(listview,BorderLayout.WEST);
-		panelMain.add(new AnimeDetailsView(),BorderLayout.CENTER);
+		panelMain.add(panelLists,BorderLayout.WEST);
 		
 		JPanel panelRight = new JPanel();
-		panelMain.add(panelRight,BorderLayout.EAST);
+		panelRight.add(new AnimeDetailsView());
+		panelMain.add(panelRight,BorderLayout.CENTER);
 		
 		tabPane.addTab("Main",panelMain);
 	}

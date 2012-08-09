@@ -1,5 +1,8 @@
 package org.janiman.gui.animedetails;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -12,7 +15,11 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingWorker;
 
+import org.janiman.db.impl.DBMapper;
 import org.janiman.event.bus.EventBus;
 import org.janiman.event.bus.EventSubscriber;
 
@@ -24,7 +31,10 @@ public class AnimeDetailsView extends JPanel {
 	Anime currentAnime;
 	EventBus bus;
 	AnimeDetailsView self;
-	JLabel imageLabel;
+	JLabel labelImage;
+	JTextArea areaDescription;
+	JLabel labelTitle;
+	SwingWorker worker;
 	
 	
 	public AnimeDetailsView()
@@ -38,15 +48,25 @@ public class AnimeDetailsView extends JPanel {
 	private void initComponents()
 	{
 		self=this;
-		imageLabel=new JLabel();
+		labelImage=new JLabel();
+		
+		areaDescription = new JTextArea();
+		areaDescription.setLineWrap(true);
+		areaDescription.setWrapStyleWord(true);
+		
+
+		labelTitle = new JLabel();
 		controller=new Controller();
 		bus = EventBus.getInstance();
 		bus.subscribe(controller, "site_list_changed");
+		super.setMaximumSize(new Dimension(500,500));
 	}
 	private void setUp()
 	{
-		super.setLayout(new GridLayout(1,0));
-		super.add(imageLabel);
+		super.setLayout(new BorderLayout());
+		super.add(labelTitle,BorderLayout.NORTH);
+		super.add(labelImage,BorderLayout.CENTER);
+		super.add(areaDescription,BorderLayout.SOUTH);
 	}
 	
 	class Controller implements EventSubscriber
@@ -92,10 +112,31 @@ public class AnimeDetailsView extends JPanel {
 			{
 				currentAnime = (Anime) o;
 				System.out.println(currentAnime.getRomajiName());
-				imageLabel.setIcon(new ImageIcon(getImage()));
-				self.revalidate();
+				
+				labelTitle.setText(currentAnime.getRomajiName());
+				ImageIcon image =new ImageIcon(getImage());
+				labelImage.setIcon(image);
+				updateDescription(currentAnime.getAnimeId());
 			}
 			
+		}
+		private void updateDescription(final long animeId)
+		{
+			worker = new SwingWorker()
+			{
+
+				@Override
+				protected Object doInBackground() throws Exception {
+					String description = DBMapper.getInstance().fetchADBDescription(animeId);
+					//TODO escape [URL] Tags to standard html tags;
+					areaDescription.setText(description);
+					self.revalidate();
+					
+					return null;
+				}
+				
+			};
+			worker.execute();
 		}
 		
 	}
