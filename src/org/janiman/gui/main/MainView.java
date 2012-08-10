@@ -1,6 +1,7 @@
 package org.janiman.gui.main;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 
 import javax.swing.JFrame;
@@ -8,7 +9,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 
 import org.janiman.db.impl.DBMapper;
 import org.janiman.gui.MALDetailsView;
@@ -57,7 +62,7 @@ public class MainView extends JFrame {
 		JPanel panelMain = new JPanel();
 		JPanel panelLists = new JPanel();
 		panelLists.setLayout(new GridLayout(0,1));
-		panelLists.add(listview);
+		panelLists.add(new JScrollPane(listview));
 		panelLists.add(new EpisodeListView());
 		
 		panelMain.setLayout(new BorderLayout());
@@ -66,6 +71,7 @@ public class MainView extends JFrame {
 		JPanel panelRight = new JPanel();
 		panelRight.add(new AnimeDetailsView());
 		panelMain.add(panelRight,BorderLayout.CENTER);
+		panelRight.setBorder(new LineBorder(Color.BLACK));
 		
 		tabPane.addTab("Main",panelMain);
 	}

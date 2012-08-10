@@ -28,7 +28,25 @@ public class DBMapper implements IDBMapper {
 	Connection conn;
 	Statement stat;
 	PreparedStatement prep;
-
+	private boolean lock;
+	
+	
+	private synchronized void testEndSet()
+	{
+		
+		while(lock==false)
+		{
+			System.out.println("MY ANUS IS WAITING");
+		}
+		lock=false;
+		
+	}
+	private synchronized void releaseLock()
+	{
+		lock=true;
+	}
+	
+	
 	private DBMapper() {
 
 		try {
@@ -36,6 +54,7 @@ public class DBMapper implements IDBMapper {
 			Class.forName("org.sqlite.JDBC");
 			conn=DriverManager.getConnection("jdbc:sqlite:test.db");
 			stat = conn.createStatement();
+			lock=true;
 
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -327,6 +346,7 @@ public class DBMapper implements IDBMapper {
 	}
 	public boolean isAlreadyInDatabase(long anidbId)
 	{
+		testEndSet();
 		boolean returnValue = false;
 		ResultSet set = null;
 		try {
@@ -342,11 +362,11 @@ public class DBMapper implements IDBMapper {
 			e.printStackTrace();
 		}
 
-		
+		releaseLock();
 		return returnValue;
 	}
 	public void addEpisode(MALEpisode epi, java.io.File episode)
-	{
+	{		testEndSet();
 		try {
 			PreparedStatement prep = conn.prepareStatement("insert into episods values (?, ?, ?, ?);");
 			prep.setInt(1,epi.getMalId());
@@ -361,9 +381,10 @@ public class DBMapper implements IDBMapper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		releaseLock();
 	}
 	public void addFileLoc(String absoluteFilePath,long aniDBanimeId,String ed2kHash,long aniDBepisodeId, long adbFileId )
-	{
+	{		testEndSet();
 		/*
 		 * 			stat.execute("CREATE TABLE IF NOT EXISTS fileloc(absFilePath STRING PRIMARY KEY," +
 					" adbAnimeId LONG," +
@@ -384,9 +405,10 @@ public class DBMapper implements IDBMapper {
 		} catch (SQLException e) {
 			System.err.println(e.getMessage());
 		}
+		releaseLock();
 	}
 	public void addFolder(MALAnime anime, java.io.File folder)
-	{
+	{		testEndSet();
 		try {
 			PreparedStatement prep = conn.prepareStatement("insert into folder values (?, ?);");
 			prep.setInt(1,anime.getId());
@@ -399,14 +421,16 @@ public class DBMapper implements IDBMapper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		releaseLock();
 	}
 	public void addMALAnimeList(ArrayList<MALAnime> inputList)
 	{
-		
+		testEndSet();
+		releaseLock();
 	}
 
 	public void addMALAnime(MALAnime anime) {
+		testEndSet();
 		try {
 			PreparedStatement prep = conn
 					.prepareStatement("insert into maldump values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
@@ -460,10 +484,12 @@ public class DBMapper implements IDBMapper {
 		} catch (SQLException e) {
 			System.err.println("Sql Exception");
 		}
+		releaseLock();
 	}
 
 	public synchronized void addADBCategory(Anime e)
 	{
+		testEndSet();
 		try {
 			prep=conn.prepareStatement("insert into category values(?,?);");
 			System.out.println("now da cazzzzz");
@@ -480,10 +506,11 @@ public class DBMapper implements IDBMapper {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		releaseLock();
 	}
 	public synchronized void addADBEpisode(Episode e,long fileId)
 	{
-		
+		testEndSet();
 		try {
 			prep=conn.prepareStatement("insert into adbEpisodes values(? ,? ,? ,? ,? ,? ,? ,? ,? ,?);");
 			prep.setLong(1,e.getAnime().getAnimeId());
@@ -507,9 +534,11 @@ public class DBMapper implements IDBMapper {
 		} catch (SQLException e1) {
 			System.err.println(e1.getMessage());
 		}
+		releaseLock();
 	}
 	public void addHomeFolder(String folder,long anidbId)
 	{
+		testEndSet();
 		PreparedStatement prep;
 		
 		try {
@@ -525,6 +554,7 @@ public class DBMapper implements IDBMapper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		releaseLock();
 	}
 
 	/**
@@ -533,6 +563,7 @@ public class DBMapper implements IDBMapper {
 	 */
 	public void addADBDescription(long animeId,String des)
 	{
+		testEndSet();
 		/*
 		 * CREATE TABLE IF NOT EXISTS adbDescription(" +
 					"animeId LONG," +
@@ -551,10 +582,12 @@ public class DBMapper implements IDBMapper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		releaseLock();
 	}
 
 	public synchronized void addADBFile(File file)
 	{
+		testEndSet();
 		//Insert in adbfile table;
 		try {
 			/*
@@ -621,11 +654,13 @@ public class DBMapper implements IDBMapper {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
+		releaseLock();
 		
 	}
 	
 	public synchronized void addADBAnime(Anime anime)
 	{
+		testEndSet();
 
 		try {
 			PreparedStatement prepe;
@@ -663,10 +698,12 @@ public class DBMapper implements IDBMapper {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		releaseLock();
 		
 	}
 	public ArrayList<Anime> fetchOwnADBAnime()
-	{		/**
+	{	
+		testEndSet();/**
 		 * CRATE TABLE IF NOT EXISTS adbAnime(" +
 		"animeId LONG PRIMARY KEY," +
 		"year STRING," +
@@ -758,11 +795,12 @@ public class DBMapper implements IDBMapper {
 			
 
 		}
-		
+		releaseLock();
 		return result;
 	}
 	public synchronized ArrayList<Episode> fetchEpisodes(long animeId)
 	{
+		testEndSet();
 		ArrayList<Episode> episodes = new ArrayList<Episode>();
 		ResultSet rs;
 		
@@ -786,11 +824,12 @@ public class DBMapper implements IDBMapper {
 			e.printStackTrace();
 		}
 	
-		
+		releaseLock();
 		return episodes;
 	}
 	public synchronized String fetchADBDescription(long animeId)
 	{
+		testEndSet();
 		/*
 		 * CREATE TABLE IF NOT EXISTS adbDescription(" +
 					"animeId LONG," +
@@ -813,11 +852,13 @@ public class DBMapper implements IDBMapper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		releaseLock();
 		return desc;
 	}
 
 	public String fetchAbsFilePath(long adbEpisodeId)
 	{
+		testEndSet();
 		String result = null;
 		ResultSet rs;
 		try {
@@ -834,6 +875,7 @@ public class DBMapper implements IDBMapper {
 	}
 	public String fetchAbsFilePathFromFileId(long adbFileId)
 	{
+		testEndSet();
 		String result = null;
 		ResultSet rs;
 		try {
@@ -846,11 +888,13 @@ public class DBMapper implements IDBMapper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		releaseLock();
 		return result;
 	}
 	
 	public ArrayList<MALAnime> fetchOwnAnime()
 	{
+		testEndSet();
 		ArrayList<MALAnime> result = new ArrayList<MALAnime>();
 		ResultSet rs;
 		try {
@@ -884,11 +928,12 @@ public class DBMapper implements IDBMapper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		releaseLock();
 		return result;
 	}
 	public String fetchHomeFolder(long anidbId)
 	{
+		testEndSet();
 		/*
 		 * 			"animeId LONG," +
 					"fileloc STRING," +
@@ -907,12 +952,13 @@ public class DBMapper implements IDBMapper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		releaseLock();
 		return homeFolder;
 		
 	}
 	public Map<Integer,String> fetchFolderMap()
 	{
+		testEndSet();
 		Map<Integer,String> resultMap = new HashMap<Integer,String>();
 		ResultSet rs;
 	
@@ -927,12 +973,13 @@ public class DBMapper implements IDBMapper {
 				e.printStackTrace();
 			}
 
-		
+			releaseLock();
 		return resultMap;
 	}
 
 	public ArrayList<MALAnime> fetchAllMALAnime()
 	{
+		testEndSet();
 			ArrayList<MALAnime> resultList = new ArrayList<MALAnime>();
 			ResultSet rs;
 			try {
@@ -967,12 +1014,13 @@ public class DBMapper implements IDBMapper {
 			} catch (SQLException e) {
 					System.out.println(e.getMessage());
 			}
-
+			releaseLock();
 			return resultList;
 		
 	}
 	public MALAnime fetchMALAnime(int MALid)
 	{
+		testEndSet();
 		MALAnime entry = new MALAnime();
 		ResultSet rs;
 		try {
@@ -1008,8 +1056,18 @@ public class DBMapper implements IDBMapper {
 			e.printStackTrace();
 		}
 
-
+		releaseLock();
 		return entry;
+	}
+	public void updateFileLoc(String newFolder, long episodeId)
+	{
+		testEndSet();
+		try {
+			stat.executeQuery("UPDATE fileloc SET absFilePath = \" "+newFolder +" \" WHERE adbEpisodeId="+episodeId+";" );
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	public static DBMapper getInstance() {
 		return instance;

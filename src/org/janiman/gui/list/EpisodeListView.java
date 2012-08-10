@@ -28,6 +28,7 @@ import org.janiman.event.bus.EventSubscriber;
 import org.janiman.gui.dialog.homefolder.SelectHomeFolderDialog;
 import org.janiman.gui.list.AnimeListView.Controller;
 import org.janiman.gui.list.AnimeListView.PopupListener;
+import org.janiman.util.UtilFileMove;
 
 public class EpisodeListView extends JPanel implements EventSubscriber {
 
@@ -91,6 +92,11 @@ public class EpisodeListView extends JPanel implements EventSubscriber {
 		menuItemHomeFolder.addActionListener(new Controller());
 		popupMenu.add(menuItemHomeFolder);
 		
+		JMenuItem menuItemMoveFile = new JMenuItem("Move File to Home Folder");
+		menuItemMoveFile.setActionCommand("moveFileHome");
+		menuItemMoveFile.addActionListener(new Controller());
+		popupMenu.add(menuItemMoveFile);
+		
 		list.addMouseListener(popupListener);
 	}
 	@Override
@@ -133,6 +139,28 @@ public class EpisodeListView extends JPanel implements EventSubscriber {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+			}
+			if(e.getActionCommand().equals("moveFileHome"))
+			{
+				worker = new SwingWorker()
+				{
+
+					@Override
+					protected Object doInBackground() throws Exception {
+						String file =DBMapper.getInstance().fetchAbsFilePath(selectedEpisode.getEpisodeId());
+						String homeFolder =DBMapper.getInstance().fetchHomeFolder(currentanime.getAnimeId());
+						long epId = selectedEpisode.getEpisodeId();
+						if(homeFolder!=null)
+						{
+							UtilFileMove.moveFile(file, homeFolder, epId);
+						}
+
+						return null;
+					}
+					
+				};
+				worker.execute();
+				
 			}
 			
 		}
